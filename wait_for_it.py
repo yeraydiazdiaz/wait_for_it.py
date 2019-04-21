@@ -9,19 +9,20 @@ import urllib.request
 import urllib.error
 import sys
 import time
+from typing import Tuple
 
 
 class ServiceUnavailableError(Exception):
     pass
 
 
-try:
+try:  # attempt to use requests if present
     import requests
 
-    def check_service(service_url: str):
+    def check_service(service_url: str) -> None:
         try:
             response = requests.get(service_url)
-            if response.status != 200:
+            if response.status_code != 200:
                 raise ServiceUnavailableError()
         except (
             requests.exceptions.ConnectionError,
@@ -31,18 +32,18 @@ try:
             raise ServiceUnavailableError from exc
 
 
-except ImportError:
+except ImportError:  # otherwise use urllib
 
-    def check_service(service_url: str):
+    def check_service(service_url: str) -> None:
         try:
-            resp = urllib.request.urlopen(service_url)
-            if resp.status != 200:
+            response = urllib.request.urlopen(service_url)
+            if response.status != 200:
                 raise ServiceUnavailableError()
         except urllib.error.URLError as exc:
             raise ServiceUnavailableError from exc
 
 
-def wait_for_service(service_url: str, timeout: int = 5, retry_interval: int = 1):
+def wait_for_service(service_url: str, timeout: int = 5, retry_interval: int = 1) -> Tuple[bool, float]:
     """Waits for an HTTP service to respond with a 200 status code.
 
     Returns a 2-tuple of success, time elapsed for the service to respond.
@@ -67,7 +68,8 @@ def wait_for_service(service_url: str, timeout: int = 5, retry_interval: int = 1
             time.sleep(retry_interval)
 
 
-if __name__ == "__main__":
+def create_parser() -> argparse.ArgumentParser:
+    """Returns a preconfigured argument parser."""
     parser = argparse.ArgumentParser(
         description="Wait for HTTP services to be available"
     )
@@ -84,9 +86,14 @@ if __name__ == "__main__":
         default=1,
         help="Time in seconds to wait between attempts to connect, defaults to 1",
     )
+    return parser
+
+
+def main():
+    parser = create_parser()
     args = parser.parse_args()
 
-    success, elapsed_time = wait_for_service(
+    success, elapsed_time, bar = wait_for_service(
         args.service_url, timeout=args.timeout, retry_interval=args.retry
     )
     print(
@@ -97,3 +104,7 @@ if __name__ == "__main__":
         )
     )
     sys.exit(not success)
+
+
+if __name__ == "__main__":
+    main()

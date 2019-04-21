@@ -1,2 +1,4 @@
 *.pyc
 .python-version
+.mypy_cache
+.vscode
