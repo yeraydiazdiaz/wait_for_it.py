@@ -1,5 +1,7 @@
 # wait_for_it.py
 
+[![Build Status](https://travis-ci.org/yeraydiazdiaz/wait_for_it.py.svg?branch=master)](https://travis-ci.org/yeraydiazdiaz/wait_for_it.py)
+
 A pure Python implementation of [wait-for-it.sh](https://github.com/vishnubob/wait-for-it) with no dependencies, however if [requests](https://docs.python-requests.org) is available it will be used.
 
 Intended to be used as a lightweight dependency service checker before startup of apps.
