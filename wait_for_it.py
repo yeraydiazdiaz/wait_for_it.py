@@ -5,10 +5,10 @@ Intended to be used as a lightweight dependency service check before startup of 
 """
 
 import argparse
-import urllib.request
-import urllib.error
 import sys
 import time
+import urllib.error
+import urllib.request
 from typing import Tuple
 
 
@@ -16,10 +16,10 @@ class ServiceUnavailableError(Exception):
     pass
 
 
-try:  # attempt to use requests if present
-    import requests
 
-    def check_service(service_url: str) -> None:
+def check_service(service_url: str) -> None:
+    try:  # attempt to use requests if present
+        import requests
         try:
             response = requests.get(service_url)
             if response.status_code != 200:
@@ -30,11 +30,7 @@ try:  # attempt to use requests if present
             requests.exceptions.HTTPError,
         ) as exc:
             raise ServiceUnavailableError from exc
-
-
-except ImportError:  # otherwise use urllib
-
-    def check_service(service_url: str) -> None:
+    except ImportError:  # otherwise use urllib
         try:
             response = urllib.request.urlopen(service_url)
             if response.status != 200:

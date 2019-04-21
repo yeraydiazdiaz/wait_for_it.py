@@ -1,2 +1,6 @@
 black
 mypy
+pytest
+pytest-localserver
+pytest-mock
+requests
