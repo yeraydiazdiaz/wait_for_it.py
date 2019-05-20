@@ -16,10 +16,10 @@ class ServiceUnavailableError(Exception):
     pass
 
 
-
 def check_service(service_url: str) -> None:
     try:  # attempt to use requests if present
         import requests
+
         try:
             response = requests.get(service_url)
             if response.status_code != 200:
@@ -39,7 +39,9 @@ def check_service(service_url: str) -> None:
             raise ServiceUnavailableError from exc
 
 
-def wait_for_service(service_url: str, timeout: int = 5, retry_interval: int = 1) -> Tuple[bool, float]:
+def wait_for_service(
+    service_url: str, timeout: int = 5, max_attempts: int = 3, retry_interval: int = 1
+) -> Tuple[bool, float]:
     """Waits for an HTTP service to respond with a 200 status code.
 
     Returns a 2-tuple of success, time elapsed for the service to respond.
@@ -47,9 +49,11 @@ def wait_for_service(service_url: str, timeout: int = 5, retry_interval: int = 1
     Args:
         - service_url: The HTTP URL where the service is expected to respond.
         - timeout: Seconds to wait for the service to respond, defaults to 5 seconds.
+        - max_attempts: Maximum number of attempts to try to connect, defaults to 3.
         - retry_interval: Number of seconds to wait between attempts, defaults to 1 second.
     """
     start = time.time()
+    attempt_number = 1
     while True:
         elapsed_time = time.time() - start
         try:
@@ -58,10 +62,11 @@ def wait_for_service(service_url: str, timeout: int = 5, retry_interval: int = 1
         except ServiceUnavailableError:
             pass
 
-        if elapsed_time > timeout:
+        if attempt_number >= max_attempts or elapsed_time > timeout:
             return False, elapsed_time
         else:
             time.sleep(retry_interval)
+            attempt_number += 1
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -71,13 +76,22 @@ def create_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("service_url", help="URL of service to wait for")
     parser.add_argument(
+        "-t",
         "--timeout",
         type=int,
         default=5,
-        help="Maximum time in seconds to wait for service, defaults to 5",
+        help="Maximum time in seconds to wait for service, defaults to 5.",
     )
     parser.add_argument(
-        "--retry",
+        "-m",
+        "--max-attempts",
+        type=int,
+        default=3,
+        help="Number of times to attempt to connect, defaults to 3",
+    )
+    parser.add_argument(
+        "-r",
+        "--retry-every",
         type=int,
         default=1,
         help="Time in seconds to wait between attempts to connect, defaults to 1",
@@ -89,8 +103,11 @@ def main():
     parser = create_parser()
     args = parser.parse_args()
 
-    success, elapsed_time, bar = wait_for_service(
-        args.service_url, timeout=args.timeout, retry_interval=args.retry
+    success, elapsed_time = wait_for_service(
+        args.service_url,
+        timeout=args.timeout,
+        max_attempts=args.max_attempts,
+        retry_interval=args.retry_every,
     )
     print(
         "Service {} {} after {:.2f} seconds".format(
