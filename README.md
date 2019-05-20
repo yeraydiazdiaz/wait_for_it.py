@@ -19,12 +19,15 @@ python wait_for_it.py http://localhost:1234 && start_my_app
 ```
 
 Optionally specify:
-- `--timeout N` to wait N seconds before giving up, defaults to 5 seconds.
-- `--retry N` to wait N seconds between attempts, defaults to 1 second.
+- `-t N` or `--timeout N` to wait N seconds before giving up, defaults to 5 seconds.
+- `-m N` or `--max-attempts N` to limit the number of attempts to connect to the service, defaults to 3. Set to 0 to not retry.
+- `-r N` or `--retry-every N` to wait N seconds between attempts, defaults to 1 second.
 
 ## Why?
 
-I kept using variations of this script in Python Docker entry points and didn't want to pull external packages or copy some impossible to understand bash code, so I decided to write this fairly simple one that people can easily adapt if needed.
+In Docker environments you usually need a reliable healthcheck command, problem is most of the time you have to install [`curl` or a similar tool](https://blog.sixeyed.com/docker-healthchecks-why-not-to-use-curl-or-iwr/). This script will work for any image with Python 3 installed.
+
+I kept using variations of this script in Python Docker healthchecks to avoid pulling external packages or copy some impossible to understand bash code, so I decided to write this fairly simple one that people can easily adapt if needed.
 
 ## Alternatives
 
