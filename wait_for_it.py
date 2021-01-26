@@ -71,12 +71,14 @@ def create_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("service_url", help="URL of service to wait for")
     parser.add_argument(
+        "-t",
         "--timeout",
         type=int,
         default=5,
         help="Maximum time in seconds to wait for service, defaults to 5",
     )
     parser.add_argument(
+        "-r",
         "--retry",
         type=int,
         default=1,
@@ -89,7 +91,7 @@ def main():
     parser = create_parser()
     args = parser.parse_args()
 
-    success, elapsed_time, bar = wait_for_service(
+    success, elapsed_time = wait_for_service(
         args.service_url, timeout=args.timeout, retry_interval=args.retry
     )
     print(
