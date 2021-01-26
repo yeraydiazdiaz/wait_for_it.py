@@ -89,7 +89,7 @@ def main():
     parser = create_parser()
     args = parser.parse_args()
 
-    success, elapsed_time, bar = wait_for_service(
+    success, elapsed_time = wait_for_service(
         args.service_url, timeout=args.timeout, retry_interval=args.retry
     )
     print(
