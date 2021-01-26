@@ -71,12 +71,14 @@ def create_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("service_url", help="URL of service to wait for")
     parser.add_argument(
+        "-t",
         "--timeout",
         type=int,
         default=5,
         help="Maximum time in seconds to wait for service, defaults to 5",
     )
     parser.add_argument(
+        "-r",
         "--retry",
         type=int,
         default=1,
