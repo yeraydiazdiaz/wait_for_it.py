@@ -2,3 +2,5 @@
 .python-version
 .mypy_cache
 .vscode
+.coverage
+coverage.xml
