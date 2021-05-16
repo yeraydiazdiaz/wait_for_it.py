@@ -16,10 +16,10 @@ class ServiceUnavailableError(Exception):
     pass
 
 
-
 def check_service(service_url: str) -> None:
     try:  # attempt to use requests if present
         import requests
+
         try:
             response = requests.get(service_url)
             if response.status_code != 200:
@@ -33,21 +33,23 @@ def check_service(service_url: str) -> None:
     except ImportError:  # otherwise use urllib
         try:
             response = urllib.request.urlopen(service_url)
-            if response.status != 200:
+            if response.status != 200:  # type: ignore
                 raise ServiceUnavailableError()
         except urllib.error.URLError as exc:
             raise ServiceUnavailableError from exc
 
 
-def wait_for_service(service_url: str, timeout: int = 5, retry_interval: int = 1) -> Tuple[bool, float]:
+def wait_for_service(
+    service_url: str, timeout: int = 5, retry_interval: int = 1
+) -> Tuple[bool, float]:
     """Waits for an HTTP service to respond with a 200 status code.
 
     Returns a 2-tuple of success, time elapsed for the service to respond.
 
     Args:
-        - service_url: The HTTP URL where the service is expected to respond.
-        - timeout: Seconds to wait for the service to respond, defaults to 5 seconds.
-        - retry_interval: Number of seconds to wait between attempts, defaults to 1 second.
+    - service_url: The HTTP URL where the service is expected to respond.
+    - timeout: Seconds to wait for the service to respond, defaults to 5 seconds.
+    - retry_interval: Number of seconds to wait between attempts, defaults to 1 second.
     """
     start = time.time()
     while True:

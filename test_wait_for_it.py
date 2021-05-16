@@ -8,8 +8,9 @@ def test_unreachable_server(httpserver):
 
 def test_requests(mocker, httpserver):
     import requests
-    mocker.spy(requests, 'get')
-    httpserver.serve_content('OK', 200)
+
+    mocker.spy(requests, "get")
+    httpserver.serve_content("OK", 200)
 
     success, _ = wait_for_it.wait_for_service(httpserver.url, timeout=1)
 
@@ -18,8 +19,8 @@ def test_requests(mocker, httpserver):
 
 
 def test_urllib(mocker, httpserver):
-    mocker.patch('requests.get', side_effect=ImportError)
-    httpserver.serve_content('OK', 200)
+    mocker.patch("requests.get", side_effect=ImportError)
+    httpserver.serve_content("OK", 200)
 
     success, _ = wait_for_it.wait_for_service(httpserver.url, timeout=1)
 
